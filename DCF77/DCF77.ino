@@ -13,8 +13,9 @@
 
 char humi[6];//Humidity
 char temp[6];//Temperature as Celsius
-char dcf77date[12];
+char dcf77date[20];
 char dcf77time[9];
+const char* weekdays[] = {"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"};
 
 // Uncomment whatever type you're using!
 //#define DHTTYPE DHT11   // DHT 11
@@ -33,8 +34,7 @@ DCF77 DCF = DCF77(DCF77_PIN, DCF77_INTERRUPT); // FALSE = inverted
 // Some stuff for responding to the request
 static char* on = "ON";
 static char* off = "OFF";
-//static char* statusLabel;
-//static char* buttonLabel;
+
 BufferFiller bfill;
 
 static word homePage() {
@@ -47,10 +47,10 @@ static word homePage() {
     "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>"
     "<title>DCF77-LAN</title></head><body>"
     "<h1>Arduino DCF77</h1>"
-    "<h3>Humi:</h3><p>$S%</p>"
-    "<h3>Temp:</h3><p>$S°C</p>"
-    "<h3>Time:</h3><p>$S</p>"
-    "<h3>Date:</h3><p>$S</p>"
+    "<h3>Luftfeuchtigkeit:</h3><p>$S %</p>"
+    "<h3>Temperatur:</h3><p>$S °C</p>"
+    "<h3>Zeit:</h3><p>$S</p>"
+    "<h3>Datum:</h3><p>$S</p>"
     "<p>LCD Background:</p>"   
     "<a href='?LED=ON'>ON</a>|<a href='?LED=OFF'>OFF</a><br></body>"    
     ), humi, temp, dcf77time, dcf77date);
@@ -184,7 +184,13 @@ void ftemp(){
 }
 
 void fdate(){
-  sprintf(dcf77date, "%02d.%02d.%02d",day(),month(),year());
+    uint8_t weekdaynum = weekday();
+    if(weekdaynum>0){
+      sprintf(dcf77date, "%s. %02d.%02d.%02d",weekdays[weekdaynum-1],day(),month(),year());   
+    }
+    else {
+      sprintf(dcf77date, "%02d.%02d.%02d",day(),month(),year());
+   }
 }
 
 void ftime(){
